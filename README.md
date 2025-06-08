@@ -54,17 +54,17 @@ A Raspberry Pi-based GPS tracker that displays your current location and heading
 
 ## 📂 Project Structure
 
-GPS/
-├── main.py # Main tracker script with real-time GPS and map display
-├── st7796.py # Custom driver for the ST7796 TFT display
-├── maps/
-│ └── oakpark.mbtiles # Offline tile map database (MBTiles format)
-├── test_map_display.py # Standalone tile rendering test script
-├── utils/
-│ └── gps_helpers.py # (Optional) Utility functions for parsing GPS/NMEA
-├── assets/
-│ └── fonts/ # Custom fonts (if used for labels/overlays)
-└── README.md # This documentation file
+- `GPS/`
+  - `main.py` – Main tracker script with real-time GPS and map display
+  - `st7796.py` – Custom driver for the ST7796 TFT display
+  - `maps/`
+    - `oakpark.mbtiles` – Offline tile map database (MBTiles format)
+  - `test_map_display.py` – Standalone tile rendering test script
+  - `utils/`
+    - `gps_helpers.py` – (Optional) Utility functions for parsing GPS/NMEA
+  - `assets/`
+    - `fonts/` – Custom fonts (if used for labels/overlays)
+  - `README.md` – This documentation file
 
 ---
 
