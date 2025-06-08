@@ -74,10 +74,6 @@ A Raspberry Pi-based GPS tracker that displays your current location and heading
   - `maps/`
     - `samplemap.mbtiles` – Offline tile map database (MBTiles format)
   - `test_map_display.py` – Standalone tile rendering test script
-  - `utils/`
-    - `gps_helpers.py` – (Optional) Utility functions for parsing GPS/NMEA
-  - `assets/`
-    - `fonts/` – Custom fonts (if used for labels/overlays)
   - `README.md` – This documentation file
 
 ---
