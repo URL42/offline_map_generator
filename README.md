@@ -40,15 +40,29 @@ A Raspberry Pi-based GPS tracker that displays your current location and heading
 
 ## 🔌 Wiring Overview
 
-| Component    | Pi GPIO/SPI |
-|--------------|-------------|
-| ST7796 `CS`  | GPIO 8 (CE0)|
-| ST7796 `DC`  | GPIO 24     |
-| ST7796 `RST` | GPIO 25     |
-| SPI CLK/MOSI | SPI0        |
-| GPS TX       | Pi RX (GPIO 15) |
-| GPS RX       | Pi TX (GPIO 14) |
-| GPS Power    | 3.3V / 5V   |
+### GPS Module Wiring
+
+| GPS Pin | Pi GPIO | Description       |
+|---------|---------|-------------------|
+| TX      | GPIO 15 | Pi RX (data in)   |
+| RX      | GPIO 14 | Pi TX (data out)  |
+| VCC     | 3.3V/5V | Power from Pi     |
+| GND     | GND     | Ground reference  |
+| Other   | —       | Leave wired per module spec (e.g. PPS, but unused) |
+
+### ST7796 TFT Screen Wiring (SPI)
+
+| Screen Pin | Pi GPIO               | Function                          |
+|---------------|-----------------------|--------------------------------|
+| VCC           | 5V (pin 2/4)          | Power                          |
+| GND           | GND (pin 6)           | Ground                         |
+| CS            | GPIO 8 (CE0)          | Chip Select for SPI            |
+| DC            | GPIO 24               | Data/Command select            |
+| RST           | GPIO 25               | Hardware reset                 |
+| CLK (SCLK)    | SPI0 SCLK (GPIO 11)   | SPI Clock                      |
+| MOSI          | SPI0 MOSI (GPIO 10)   | SPI Data Output                |
+| MISO          | Not used              | (Screen doesn’t send data)     |
+| LED Backlight | GPIO 18 (optional)    | Pin for backlight control: Connect through resistor or wire to +5V always on |
 
 ---
 
