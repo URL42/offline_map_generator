@@ -8,7 +8,7 @@ import serial
 import pynmea2
 
 # Constants
-MBTILES_PATH = "/home/pi/GPS/maps/oakpark.mbtiles"
+MBTILES_PATH = "/home/pi/GPS/maps/samplemap.mbtiles"
 ZOOM = 15
 TILE_SIZE = 256
 SCREEN_WIDTH = 480
