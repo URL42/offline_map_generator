@@ -58,7 +58,7 @@ A Raspberry Pi-based GPS tracker that displays your current location and heading
   - `main.py` – Main tracker script with real-time GPS and map display
   - `st7796.py` – Custom driver for the ST7796 TFT display
   - `maps/`
-    - `oakpark.mbtiles` – Offline tile map database (MBTiles format)
+    - `samplemap.mbtiles` – Offline tile map database (MBTiles format)
   - `test_map_display.py` – Standalone tile rendering test script
   - `utils/`
     - `gps_helpers.py` – (Optional) Utility functions for parsing GPS/NMEA
@@ -75,9 +75,9 @@ A Raspberry Pi-based GPS tracker that displays your current location and heading
 Download `.mbtiles` for your region using [OfflineMapDownloader](https://github.com/0015/OfflineMapDownloader) or other tools, and place it in the `/home/pi/GPS/maps/` directory:
 
 ```bash
-scp ~/Downloads/oakpark.mbtiles pi@<raspberrypi_ip>:/home/pi/GPS/maps/
+scp ~/Downloads/samplemap.mbtiles pi@<raspberrypi_ip>:/home/pi/GPS/maps/
 ```
-Replace <raspberrypi_ip> with the actual IP address of your Raspberry Pi.
+Replace <raspberrypi_ip> with the actual IP address of your Raspberry Pi. Do this from your main computer, not from the pi via ssh.
 
 ### 2. ⚙️ Run the Map Viewer
 
