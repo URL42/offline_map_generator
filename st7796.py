@@ -19,7 +19,6 @@ class ST7796:
         GPIO.setup(self.rst, GPIO.OUT)
 
         self.spi = spidev.SpiDev()
-        # Respect the chip select pin provided by the caller
         self.spi.open(port, cs)
         self.spi.max_speed_hz = spi_speed_hz
         self.spi.mode = 0
@@ -54,7 +53,7 @@ class ST7796:
         self.write_cmd(0x11)  # Sleep Out
         time.sleep(0.1)
         self.write_cmd(0x36)
-        self.write_data(0x48)  # MADCTL
+        self.write_data(0x28)  # MADCTL (adjust if colors are off or flipped)
         self.write_cmd(0x3A)
         self.write_data(0x55)  # COLMOD: 16-bit/pixel
         self.write_cmd(0x29)  # Display On
@@ -64,31 +63,29 @@ class ST7796:
         if image.mode != "RGB":
             image = image.convert("RGB")
 
-        # Convert the RGB888 PIL image data to RGB565 expected by the display
         rgb = image.tobytes()
         pixelbytes = bytearray(len(rgb) // 3 * 2)
         j = 0
         for i in range(0, len(rgb), 3):
-            r = rgb[i] & 0xF8
-            g = rgb[i + 1] & 0xFC
-            b = rgb[i + 2] & 0xF8
-            value = (r << 8) | (g << 3) | (b >> 3)
+            r = rgb[i] >> 3       # 5 bits
+            g = rgb[i + 1] >> 2   # 6 bits
+            b = rgb[i + 2] >> 3   # 5 bits
+            value = (r << 11) | (g << 5) | b
             pixelbytes[j] = (value >> 8) & 0xFF
             pixelbytes[j + 1] = value & 0xFF
             j += 2
 
         self.write_cmd(0x2A)
-        self.write_data([0x00, 0x00, (self.width-1) >> 8, (self.width-1) & 0xFF])
+        self.write_data([0x00, 0x00, (self.width - 1) >> 8, (self.width - 1) & 0xFF])
         self.write_cmd(0x2B)
-        self.write_data([0x00, 0x00, (self.height-1) >> 8, (self.height-1) & 0xFF])
+        self.write_data([0x00, 0x00, (self.height - 1) >> 8, (self.height - 1) & 0xFF])
         self.write_cmd(0x2C)
 
         GPIO.output(self.dc, GPIO.HIGH)
         GPIO.output(self.cs, GPIO.LOW)
-        # Many Raspberry Pi kernels limit SPI transfers to 4kB. Chunk
-        # the data so large frames don't exceed that limit.
+
         CHUNK_SIZE = 4096
         for i in range(0, len(pixelbytes), CHUNK_SIZE):
             self.spi.writebytes(pixelbytes[i:i + CHUNK_SIZE])
-        GPIO.output(self.cs, GPIO.HIGH)
 
+        GPIO.output(self.cs, GPIO.HIGH)
