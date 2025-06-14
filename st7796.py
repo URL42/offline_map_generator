@@ -85,6 +85,10 @@ class ST7796:
 
         GPIO.output(self.dc, GPIO.HIGH)
         GPIO.output(self.cs, GPIO.LOW)
-        self.spi.writebytes(pixelbytes)
+        # Many Raspberry Pi kernels limit SPI transfers to 4kB. Chunk
+        # the data so large frames don't exceed that limit.
+        CHUNK_SIZE = 4096
+        for i in range(0, len(pixelbytes), CHUNK_SIZE):
+            self.spi.writebytes(pixelbytes[i:i + CHUNK_SIZE])
         GPIO.output(self.cs, GPIO.HIGH)
 

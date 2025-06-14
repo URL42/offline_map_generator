@@ -79,7 +79,10 @@ def draw_overlay(image, lat, lon, heading):
 
     draw.text((5, 5), f"{lat:.5f}, {lon:.5f}", fill="red", font=font)
     label = f"N {int(heading)}°"
-    tw, th = draw.textsize(label, font=font)
+    # textsize was removed in Pillow 10; use textbbox to get width/height.
+    lbbox = draw.textbbox((0, 0), label, font=font)
+    tw = lbbox[2] - lbbox[0]
+    th = lbbox[3] - lbbox[1]
     draw.text((SCREEN_WIDTH - tw - 5, SCREEN_HEIGHT - th - 5), label, fill="red", font=font)
 
     return image
