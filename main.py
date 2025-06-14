@@ -90,22 +90,32 @@ def draw_overlay(image, lat, lon, heading):
 
     return image
 
-def get_gps_data(ser):
-    """Return latitude, longitude and heading from the GPS."""
-    while True:
+def get_gps_data(ser, max_lines=30):
+    """Try to read up to `max_lines` lines from GPS and return lat/lon/heading.>
+    for _ in range(max_lines):
         try:
-            line = ser.readline().decode("ascii", errors="ignore")
+            line = ser.readline().decode("ascii", errors="ignore").strip()
+            if not line:
+                continue
+
             if line.startswith("$GNRMC") or line.startswith("$GPRMC"):
                 msg = pynmea2.parse(line)
                 if getattr(msg, "status", "V") == "A":
                     heading = float(msg.true_course or 0)
                     return msg.latitude, msg.longitude, heading
+
             elif line.startswith("$GNGGA") or line.startswith("$GPGGA"):
                 msg = pynmea2.parse(line)
                 return msg.latitude, msg.longitude, 0
-        except Exception:
+        except pynmea2.ParseError:
+            continue
+        except Exception as e:
+            print(f"[GPS Parse Error]: {e}")
             continue
 
+    # If no valid line is found after max_lines, raise an error or return fallb>
+    raise TimeoutError("No valid GPS data received.")
+    
 def main():
     print("Starting GPS map viewer...")
     ser = serial.Serial(GPS_PORT, GPS_BAUDRATE, timeout=1)
@@ -115,14 +125,18 @@ def main():
             print("Reading GPS data...")
             lat, lon, heading = get_gps_data(ser)
             print(f"Got GPS: {lat}, {lon} heading: {heading}")
-            map_img = get_composite_tile(lat, lon, ZOOM)
-            display_img = draw_overlay(map_img, lat, lon, heading)
-            display.display(display_img)
-            time.sleep(3)
-        except Exception as e:
-            print(f"Error: {e}")
-            time.sleep(2)
 
+            print("Generating map tile...")
+            map_img = get_composite_tile(lat, lon, ZOOM)
+
+            print("Drawing overlay...")
+            display_img = draw_overlay(map_img, lat, lon, heading)
+
+            print("Updating display...")
+            display.display(display_img)
+
+            time.sleep(3)
+            
 if __name__ == "__main__":
     main()
 
