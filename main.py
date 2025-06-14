@@ -36,7 +36,7 @@ def get_tile(z, x, y):
 
     conn = sqlite3.connect(MBTILES_PATH)
     cursor = conn.cursor()
-    y_tms = (2 ** z - 1) - y
+    y_tms = (2 ** z - 1) - y  # Convert to TMS tile scheme
     cursor.execute("SELECT tile_data FROM tiles WHERE zoom_level=? AND tile_column=? AND tile_row=?", (z, x, y_tms))
     row = cursor.fetchone()
     conn.close()
@@ -70,19 +70,22 @@ def draw_overlay(image, lat, lon, heading):
     font = ImageFont.load_default()
 
     cx, cy = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2
-    draw.ellipse((cx-4, cy-4, cx+4, cy+4), fill="red")
+    draw.ellipse((cx - 4, cy - 4, cx + 4, cy + 4), fill="red")
 
+    # Heading arrow
     arrow_len = 15
     arrow_x = cx + arrow_len * math.cos(math.radians(heading))
     arrow_y = cy - arrow_len * math.sin(math.radians(heading))
     draw.line((cx, cy, arrow_x, arrow_y), fill="blue", width=2)
 
+    # Coordinates
     draw.text((5, 5), f"{lat:.5f}, {lon:.5f}", fill="red", font=font)
+
+    # Compass label
     label = f"N {int(heading)}°"
-    # textsize was removed in Pillow 10; use textbbox to get width/height.
-    lbbox = draw.textbbox((0, 0), label, font=font)
-    tw = lbbox[2] - lbbox[0]
-    th = lbbox[3] - lbbox[1]
+    bbox = draw.textbbox((0, 0), label, font=font)
+    tw = bbox[2] - bbox[0]
+    th = bbox[3] - bbox[1]
     draw.text((SCREEN_WIDTH - tw - 5, SCREEN_HEIGHT - th - 5), label, fill="red", font=font)
 
     return image
@@ -109,6 +112,7 @@ def main():
 
     while True:
         try:
+            print("Reading GPS data...")
             lat, lon, heading = get_gps_data(ser)
             print(f"Got GPS: {lat}, {lon} heading: {heading}")
             map_img = get_composite_tile(lat, lon, ZOOM)
@@ -121,3 +125,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
