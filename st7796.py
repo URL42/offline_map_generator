@@ -19,7 +19,8 @@ class ST7796:
         GPIO.setup(self.rst, GPIO.OUT)
 
         self.spi = spidev.SpiDev()
-        self.spi.open(port, 0)
+        # Respect the chip select pin provided by the caller
+        self.spi.open(port, cs)
         self.spi.max_speed_hz = spi_speed_hz
         self.spi.mode = 0
 
@@ -62,7 +63,19 @@ class ST7796:
     def display(self, image):
         if image.mode != "RGB":
             image = image.convert("RGB")
-        pixelbytes = image.tobytes()
+
+        # Convert the RGB888 PIL image data to RGB565 expected by the display
+        rgb = image.tobytes()
+        pixelbytes = bytearray(len(rgb) // 3 * 2)
+        j = 0
+        for i in range(0, len(rgb), 3):
+            r = rgb[i] & 0xF8
+            g = rgb[i + 1] & 0xFC
+            b = rgb[i + 2] & 0xF8
+            value = (r << 8) | (g << 3) | (b >> 3)
+            pixelbytes[j] = (value >> 8) & 0xFF
+            pixelbytes[j + 1] = value & 0xFF
+            j += 2
 
         self.write_cmd(0x2A)
         self.write_data([0x00, 0x00, (self.width-1) >> 8, (self.width-1) & 0xFF])
@@ -72,6 +85,6 @@ class ST7796:
 
         GPIO.output(self.dc, GPIO.HIGH)
         GPIO.output(self.cs, GPIO.LOW)
-        self.spi.writebytes(list(pixelbytes))
+        self.spi.writebytes(pixelbytes)
         GPIO.output(self.cs, GPIO.HIGH)
 
