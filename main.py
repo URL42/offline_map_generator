@@ -84,13 +84,19 @@ def draw_overlay(image, lat, lon, heading):
 
     return image
 
-def get_gps_coordinates(ser):
+def get_gps_data(ser):
+    """Return latitude, longitude and heading from the GPS."""
     while True:
         try:
             line = ser.readline().decode("ascii", errors="ignore")
-            if line.startswith("$GNGGA") or line.startswith("$GPGGA"):
+            if line.startswith("$GNRMC") or line.startswith("$GPRMC"):
                 msg = pynmea2.parse(line)
-                return msg.latitude, msg.longitude
+                if getattr(msg, "status", "V") == "A":
+                    heading = float(msg.true_course or 0)
+                    return msg.latitude, msg.longitude, heading
+            elif line.startswith("$GNGGA") or line.startswith("$GPGGA"):
+                msg = pynmea2.parse(line)
+                return msg.latitude, msg.longitude, 0
         except Exception:
             continue
 
@@ -100,9 +106,8 @@ def main():
 
     while True:
         try:
-            lat, lon = get_gps_coordinates(ser)
-            print(f"Got GPS: {lat}, {lon}")
-            heading = 0  # Placeholder
+            lat, lon, heading = get_gps_data(ser)
+            print(f"Got GPS: {lat}, {lon} heading: {heading}")
             map_img = get_composite_tile(lat, lon, ZOOM)
             display_img = draw_overlay(map_img, lat, lon, heading)
             display.display(display_img)
