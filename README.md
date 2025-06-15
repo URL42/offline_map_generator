@@ -161,7 +161,8 @@ StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
-```
+  ```
+
 --ExecStartPre=/bin/sleep 10 ensures the system initializes SPI and serial devices before your script runs.
 
 --Restart=always will keep the service alive if it crashes.
