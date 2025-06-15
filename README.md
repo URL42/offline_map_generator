@@ -138,6 +138,53 @@ This project is optimized for portable use. Here’s what works well:
 - Runtime: ~4–6 hours depending on update rate and GPS activity
 - Make sure the battery pack supports output while charging (pass-through) if you want to hot-swap.
 
+## 6. 🔁 Auto-Start on Boot with systemd
+To ensure your GPS map viewer launches automatically at boot, you can create a systemd service.
+- Create a new service file:
+  ```
+  sudo nano /etc/systemd/system/gpsmap.service
+  ```
+- Paste the following contents:
+  ```
+  [Unit]
+Description=GPS Map Viewer
+After=network.target
+
+[Service]
+ExecStartPre=/bin/sleep 10
+ExecStart=/usr/bin/python3 /home/pi/GPS/main.py
+Restart=always
+User=pi
+WorkingDirectory=/home/pi/GPS
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+--ExecStartPre=/bin/sleep 10 ensures the system initializes SPI and serial devices before your script runs.
+
+--Restart=always will keep the service alive if it crashes.
+
+--StandardOutput=journal logs output so you can inspect it with journalctl.
+
+- Enable the service:
+```
+sudo systemctl daemon-reexec
+sudo systemctl daemon-reload
+sudo systemctl enable gpsmap.service
+```
+
+- Check the status:
+```
+sudo systemctl status gpsmap.service
+```
+
+- To view logs:
+```
+journalctl -u gpsmap.service
+```
+
 ### 🛡️ License
 MIT License
 Feel free to copy, modify, and build on this project for personal use only, not for commercial use.
