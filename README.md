@@ -147,27 +147,27 @@ To ensure your GPS map viewer launches automatically at boot, you can create a s
 - Paste the following contents:
   ```
   [Unit]
-Description=GPS Map Viewer
-After=network.target
-
-[Service]
-ExecStartPre=/bin/sleep 10
-ExecStart=/usr/bin/python3 /home/pi/GPS/main.py
-Restart=always
-User=pi
-WorkingDirectory=/home/pi/GPS
-StandardOutput=journal
-StandardError=journal
-
-[Install]
-WantedBy=multi-user.target
+  Description=GPS Map Viewer
+  After=network.target
+  
+  [Service]
+  ExecStartPre=/bin/sleep 10
+  ExecStart=/usr/bin/python3 /home/pi/GPS/main.py
+  Restart=always
+  User=pi
+  WorkingDirectory=/home/pi/GPS
+  StandardOutput=journal
+  StandardError=journal
+  
+  [Install]
+  WantedBy=multi-user.target
   ```
 
---ExecStartPre=/bin/sleep 10 ensures the system initializes SPI and serial devices before your script runs.
+-- ExecStartPre=/bin/sleep 10 ensures the system initializes SPI and serial devices before your script runs.
 
---Restart=always will keep the service alive if it crashes.
+-- Restart=always will keep the service alive if it crashes.
 
---StandardOutput=journal logs output so you can inspect it with journalctl.
+-- StandardOutput=journal logs output so you can inspect it with journalctl.
 
 - Enable the service:
 ```
